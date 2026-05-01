@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Para ti, mi amor 💛</title>
+
+  <!-- Google Fonts: Playfair Display (romántica) + Lato (cuerpo) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ============================================================
+       VARIABLES Y RESET
+    ============================================================ */
+    :root {
+      --rosa-suave:   #fde8f0;
+      --rosa-medio:   #f4b8d0;
+      --rosa-fuerte:  #e07fa0;
+      --amarillo:     #f9e04b;
+      --amarillo-oro: #f0c030;
+      --crema:        #fff8f0;
+      --texto:        #5a3045;
+      --texto-claro:  #9b6070;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Lato', sans-serif;
+      background: var(--crema);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      cursor: pointer;
+    }
+
+    /* ============================================================
+       PANTALLA INICIAL
+    ============================================================ */
+    #intro {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(160deg, #fff0f7 0%, #fff9e6 50%, #fdeef6 100%);
+      z-index: 100;
+      transition: opacity 1.2s ease, transform 1.2s ease;
+      gap: 2rem;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    #intro.fade-out {
+      opacity: 0;
+      transform: scale(1.04);
+      pointer-events: none;
+    }
+
+    /* Corazón latente decorativo */
+    .heart-deco {
+      font-size: clamp(3rem, 10vw, 5rem);
+      animation: heartbeat 1.6s ease-in-out infinite;
+    }
+
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      15%       { transform: scale(1.18); }
+      30%       { transform: scale(1); }
+      45%       { transform: scale(1.1); }
+      60%       { transform: scale(1); }
+    }
+
+    #intro h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.4rem, 5vw, 2.6rem);
+      color: var(--texto);
+      line-height: 1.4;
+      max-width: 600px;
+    }
+
+    #intro h1 em {
+      font-style: italic;
+      color: var(--rosa-fuerte);
+    }
+
+    /* Botón abrir carta */
+    .btn-abrir {
+      margin-top: 1rem;
+      padding: 0.85rem 2.4rem;
+      border: 2px solid var(--rosa-fuerte);
+      border-radius: 50px;
+      background: transparent;
+      color: var(--rosa-fuerte);
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: background 0.3s, color 0.3s, transform 0.2s;
+      animation: pulse-btn 2.4s ease-in-out infinite;
+    }
+
+    .btn-abrir:hover {
+      background: var(--rosa-fuerte);
+      color: #fff;
+      transform: scale(1.06);
+    }
+
+    @keyframes pulse-btn {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(224,127,160,0.4); }
+      50%       { box-shadow: 0 0 0 10px rgba(224,127,160,0); }
+    }
+
+    .hint {
+      font-size: 0.82rem;
+      color: var(--texto-claro);
+      letter-spacing: 0.06em;
+      opacity: 0.7;
+    }
+
+    /* ============================================================
+       ESCENA PRINCIPAL (carta + flores)
+    ============================================================ */
+    #carta-scene {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 1.2s ease 0.4s;
+      overflow: hidden;
+      background: linear-gradient(170deg, #fff6fb 0%, #fffde8 60%, #fef0f8 100%);
+      padding: 1rem;
+    }
+
+    #carta-scene.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    /* ============================================================
+       FLORES SVG ANIMADAS — CONTENEDOR
+    ============================================================ */
+    #flores-container {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Cada flor es un <div> posicionado absolutamente con SVG inline */
+    .flor {
+      position: absolute;
+      opacity: 0;
+      animation: flor-aparecer 1.4s ease forwards, flotar 5s ease-in-out infinite;
+    }
+
+    @keyframes flor-aparecer {
+      from { opacity: 0; transform: scale(0.3) rotate(-20deg); }
+      to   { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+
+    @keyframes flotar {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      30%      { transform: translateY(-12px) rotate(4deg); }
+      70%      { transform: translateY(8px) rotate(-3deg); }
+    }
+
+    /* ============================================================
+       CARTA
+    ============================================================ */
+    .carta {
+      position: relative;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(6px);
+      border: 1.5px solid var(--rosa-medio);
+      border-radius: 20px;
+      padding: clamp(1.6rem, 5vw, 3rem) clamp(1.4rem, 5vw, 2.8rem);
+      max-width: 560px;
+      width: 100%;
+      box-shadow:
+        0 4px 30px rgba(224, 127, 160, 0.18),
+        0 1px 8px rgba(224, 127, 160, 0.1);
+      text-align: center;
+      transform: translateY(30px);
+      transition: transform 1s ease 0.6s;
+    }
+
+    #carta-scene.visible .carta {
+      transform: translateY(0);
+    }
+
+    .carta .saludo {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.5rem, 5vw, 2rem);
+      font-weight: 700;
+      color: var(--rosa-fuerte);
+      margin-bottom: 1.2rem;
+    }
+
+    .carta .mensaje {
+      font-size: clamp(0.95rem, 2.5vw, 1.08rem);
+      color: var(--texto);
+      line-height: 1.85;
+      font-weight: 300;
+    }
+
+    .carta .firma {
+      margin-top: 1.6rem;
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.1rem;
+      color: var(--texto-claro);
+    }
+
+    /* Separador decorativo */
+    .divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      margin: 1.2rem 0;
+      color: var(--rosa-medio);
+      font-size: 1.1rem;
+    }
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--rosa-medio);
+    }
+
+    /* ============================================================
+       PARTÍCULAS: corazones y estrellitas flotantes
+    ============================================================ */
+    #particulas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+      overflow: hidden;
+    }
+
+    .particula {
+      position: absolute;
+      bottom: -40px;
+      font-size: 1.1rem;
+      opacity: 0;
+      animation: subir linear infinite;
+    }
+
+    @keyframes subir {
+      0%   { transform: translateY(0) scale(0.8); opacity: 0.8; }
+      80%  { opacity: 0.6; }
+      100% { transform: translateY(-110vh) scale(1.1); opacity: 0; }
+    }
+
+    /* ============================================================
+       BOTÓN DE MÚSICA
+    ============================================================ */
+    #btn-musica {
+      position: fixed;
+      bottom: 1.4rem;
+      right: 1.4rem;
+      z-index: 50;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 2px solid var(--rosa-fuerte);
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(4px);
+      color: var(--rosa-fuerte);
+      font-size: 1.3rem;
+      cursor: pointer;
+      display: none;            /* oculto hasta abrir carta */
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s, transform 0.2s;
+      box-shadow: 0 2px 12px rgba(224,127,160,0.25);
+    }
+
+    #btn-musica:hover { background: var(--rosa-fuerte); color: #fff; transform: scale(1.1); }
+    #btn-musica.playing { background: var(--rosa-fuerte); color: #fff; }
+
+    /* ============================================================
+       BRILLO / SHIMMER en la carta
+    ============================================================ */
+    .carta::before {
+      content: '';
+      position: absolute;
+      top: -60%;
+      left: -60%;
+      width: 50%;
+      height: 220%;
+      background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.55) 50%, transparent 70%);
+      transform: skewX(-20deg);
+      animation: shimmer 4s ease-in-out infinite 2s;
+      pointer-events: none;
+      border-radius: 50%;
+    }
+
+    @keyframes shimmer {
+      0%   { left: -60%; opacity: 0; }
+      10%  { opacity: 1; }
+      50%  { left: 130%; }
+      51%, 100% { opacity: 0; left: 130%; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+       PANTALLA INICIAL
+  ============================================================ -->
+  <div id="intro">
+    <div class="heart-deco">💛</div>
+
+    <h1>Para la novia más linda de<br /><em>toda la Vía Láctea</em></h1>
+
+    <button class="btn-abrir" id="btn-abrir" aria-label="Abrir carta">
+      💌 Abrir carta
+    </button>
+
+    <p class="hint">o toca cualquier lugar de la pantalla</p>
+  </div>
+
+  <!-- ============================================================
+       FLORES ANIMADAS
+  ============================================================ -->
+  <div id="flores-container"></div>
+
+  <!-- ============================================================
+       PARTÍCULAS (corazones / estrellitas)
+  ============================================================ -->
+  <div id="particulas"></div>
+
+  <!-- ============================================================
+       ESCENA PRINCIPAL
+  ============================================================ -->
+  <div id="carta-scene">
+    <div class="carta" role="main">
+      <p class="saludo">¡Feliz Aniversario, mi amor! 🌻</p>
+
+      <div class="divider">💛</div>
+
+      <p class="mensaje">
+        Te prometo que conquistarte no fue nada facil<br /><br />
+        y aunque las cosas se pongan dificiles, siempre voy a estar aquí para ti
+        ya tomalo como amenza o algo lindo, pero lo que quiero decir es 
+        que no importa lo que pase, siempre voy a luchar por nosotros y por nuestro amor.<br /><br />
+        Me parte el corazón que te sientas malita hoy,
+        pero lo más importante para mí es que te recuperes pronto.<br /><br />
+        No te preocupes por los planes —
+        nuestra celebración puede esperar;
+        lo único que quiero hoy es <strong>consentirte</strong>
+        y que estés bien.<br /><br />
+        <em>Te amo muchísimo.</em>
+      </p>
+
+      <div class="divider">✨</div>
+
+      <p class="firma">Con todo mi amor, siempre 💛</p>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       BOTÓN MÚSICA
+  ============================================================ -->
+  <button id="btn-musica" aria-label="Activar música">🎵</button>
+
+  <!-- Audio de fondo (melodía de dominio público suave vía URL externa) -->
+  <audio id="audio-bg" loop>
+    <!--
+      Si deseas música personalizada, reemplaza el src por la URL de tu archivo MP3.
+      La línea de abajo usa una melodía libre de Pixabay (requiere conexión a internet).
+    -->
+    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_2dde668d05.mp3?filename=romantic-piano-loop-17628.mp3" type="audio/mpeg" />
+  </audio>
+
+
+  <script>
+    /* ============================================================
+       UTILIDADES
+    ============================================================ */
+
+    /** Devuelve un número aleatorio entre min y max */
+    const rand = (min, max) => Math.random() * (max - min) + min;
+
+    /** SVG de una flor girasol estilizada con pétalos amarillos */
+    function svgFlor(size, rotacion) {
+      const cx = size / 2;
+      const r  = size / 2;
+      // Pétalos (8 elipses rotadas)
+      let petalos = '';
+      for (let i = 0; i < 8; i++) {
+        const ang = (i * 45) * (Math.PI / 180);
+        const px  = cx + Math.cos(ang) * r * 0.38;
+        const py  = cx + Math.sin(ang) * r * 0.38;
+        petalos += `
+          <ellipse
+            cx="${px}" cy="${py}"
+            rx="${r * 0.22}" ry="${r * 0.34}"
+            fill="#f9e04b"
+            opacity="0.92"
+            transform="rotate(${i * 45}, ${px}, ${py})"
+          />`;
+      }
+      return `
+        <svg xmlns="http://www.w3.org/2000/svg"
+             width="${size}" height="${size}"
+             viewBox="0 0 ${size} ${size}"
+             style="transform: rotate(${rotacion}deg)">
+          <!-- Pétalos -->
+          ${petalos}
+          <!-- Centro -->
+          <circle cx="${cx}" cy="${cx}" r="${r * 0.26}" fill="#b5681a" />
+          <circle cx="${cx}" cy="${cx}" r="${r * 0.16}" fill="#7c3f0a" opacity="0.7"/>
+        </svg>`;
+    }
+
+    /** SVG de una florecita pequeña de 5 pétalos (rosa) */
+    function svgFlorPequena(size) {
+      const cx = size / 2;
+      const r  = size / 2;
+      let petalos = '';
+      for (let i = 0; i < 5; i++) {
+        const ang = (i * 72 - 90) * (Math.PI / 180);
+        const px  = cx + Math.cos(ang) * r * 0.36;
+        const py  = cx + Math.sin(ang) * r * 0.36;
+        petalos += `<circle cx="${px}" cy="${py}" r="${r * 0.25}" fill="#f4b8d0" opacity="0.85"/>`;
+      }
+      return `
+        <svg xmlns="http://www.w3.org/2000/svg"
+             width="${size}" height="${size}"
+             viewBox="0 0 ${size} ${size}">
+          ${petalos}
+          <circle cx="${cx}" cy="${cx}" r="${r * 0.18}" fill="#ffe066" />
+        </svg>`;
+    }
+
+    /* ============================================================
+       GENERAR FLORES EN EL DOM
+    ============================================================ */
+    function generarFlores() {
+      const contenedor = document.getElementById('flores-container');
+      contenedor.innerHTML = '';
+
+      // Girasoles (tipo A)
+      const posicionesGirasoles = [
+        { top: '5%',  left: '3%'  },
+        { top: '8%',  right: '4%' },
+        { top: '70%', left: '2%'  },
+        { top: '75%', right: '3%' },
+        { top: '45%', left: '0%'  },
+        { top: '42%', right: '0%' },
+        { top: '20%', left: '6%'  },
+        { top: '22%', right: '5%' },
+        { top: '55%', left: '5%'  },
+        { top: '58%', right: '4%' },
+        { top: '88%', left: '8%'  },
+        { top: '85%', right: '7%' },
+      ];
+
+      posicionesGirasoles.forEach((pos, i) => {
+        const size    = rand(44, 80);
+        const delay   = rand(0.1, 2.5);
+        const duracion = rand(4, 7);
+        const rotacion = rand(-20, 20);
+
+        const div = document.createElement('div');
+        div.className = 'flor';
+        div.style.cssText = `
+          top: ${pos.top};
+          ${pos.left  !== undefined ? 'left: '  + pos.left  + ';' : ''}
+          ${pos.right !== undefined ? 'right: ' + pos.right + ';' : ''}
+          width: ${size}px;
+          height: ${size}px;
+          animation-delay: ${delay}s, ${delay}s;
+          animation-duration: 1.4s, ${duracion}s;
+        `;
+        div.innerHTML = svgFlor(size, rotacion);
+        contenedor.appendChild(div);
+      });
+
+      // Florecitas pequeñas
+      for (let i = 0; i < 14; i++) {
+        const size    = rand(20, 38);
+        const delay   = rand(0.3, 3);
+        const duracion = rand(3.5, 6);
+        const topP    = rand(2, 95);
+        const leftP   = rand(0, 100);
+
+        const div = document.createElement('div');
+        div.className = 'flor';
+        div.style.cssText = `
+          top: ${topP}%;
+          left: ${leftP}%;
+          width: ${size}px;
+          height: ${size}px;
+          animation-delay: ${delay}s, ${delay}s;
+          animation-duration: 1.4s, ${duracion}s;
+        `;
+        div.innerHTML = svgFlorPequena(size);
+        contenedor.appendChild(div);
+      }
+    }
+
+    /* ============================================================
+       PARTÍCULAS (corazones y estrellitas)
+    ============================================================ */
+    const SIMBOLOS = ['💛', '✨', '🌸', '💕', '⭐', '🌼', '💫'];
+
+    function crearParticula() {
+      const el  = document.createElement('span');
+      el.className = 'particula';
+      el.textContent = SIMBOLOS[Math.floor(Math.random() * SIMBOLOS.length)];
+
+      const dur  = rand(7, 15);
+      const left = rand(0, 98);
+      const size = rand(0.7, 1.4);
+
+      el.style.cssText = `
+        left: ${left}%;
+        font-size: ${size}rem;
+        animation-duration: ${dur}s;
+        animation-delay: ${rand(0, 6)}s;
+      `;
+
+      document.getElementById('particulas').appendChild(el);
+
+      // Limpieza tras la animación
+      setTimeout(() => el.remove(), (dur + 6) * 1000);
+    }
+
+    function iniciarParticulas() {
+      // Crea varias al principio y luego periódicamente
+      for (let i = 0; i < 18; i++) crearParticula();
+      setInterval(() => crearParticula(), 1200);
+    }
+
+    /* ============================================================
+       APERTURA DE LA CARTA
+    ============================================================ */
+    let cartaAbierta = false;
+
+    function abrirCarta() {
+      if (cartaAbierta) return;
+      cartaAbierta = true;
+
+      // 1. Fade out intro
+      document.getElementById('intro').classList.add('fade-out');
+
+      // 2. Generar flores
+      generarFlores();
+
+      // 3. Mostrar escena
+      setTimeout(() => {
+        document.getElementById('carta-scene').classList.add('visible');
+        document.getElementById('btn-musica').style.display = 'flex';
+        iniciarParticulas();
+      }, 600);
+    }
+
+    /* ============================================================
+       EVENTOS
+    ============================================================ */
+    document.getElementById('btn-abrir').addEventListener('click', e => {
+      e.stopPropagation();
+      abrirCarta();
+    });
+
+    // Clic en cualquier lugar de la pantalla (solo si carta no abierta)
+    document.getElementById('intro').addEventListener('click', abrirCarta);
+
+    /* ============================================================
+       MÚSICA
+    ============================================================ */
+    const audio    = document.getElementById('audio-bg');
+    const btnMusic = document.getElementById('btn-musica');
+    let   playing  = false;
+
+    btnMusic.addEventListener('click', e => {
+      e.stopPropagation();
+      if (playing) {
+        audio.pause();
+        btnMusic.textContent = '🎵';
+        btnMusic.classList.remove('playing');
+        playing = false;
+      } else {
+        audio.volume = 0.45;
+        audio.play().catch(() => {/* autoplay bloqueado */});
+        btnMusic.textContent = '🔇';
+        btnMusic.classList.add('playing');
+        playing = true;
+      }
+    });
+
+  </script>
+</body>
+</html>
